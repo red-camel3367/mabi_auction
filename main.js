@@ -1,5 +1,4 @@
-requestAnimationFrame('dotenv').config();
-const NEXON_API_KEY = process.env.NEXON_API_KEY; // API 키
+const fetchMabiAPI = require('./util/fetchauctionAPI'); // 가져오기
 
 /**
  * 스프레드 시트, GAS 용 기본 골자
@@ -38,30 +37,11 @@ function updateAuctionPrices() {
       console.error(itemName + " 조회 오류: " + e.message);
       results.push(["에러"]);
     }
-    
-    Utilities.sleep(150); // API 부하 방지
+    await(150);   
+    // Utilities.sleep(150); // API 부하 방지 // GAS 환경에서 필요시 사용
   }
 
   // 결과 일괄 입력
   sheet.getRange("C3:C21").setValues(results);
 }
 
-/**
- * 넥슨 API 호출 공통 함수 (UrlFetchApp 사용)
- */
-function fetchMabiAPI(endpoint, itemName) {
-  const url = `https://open.api.nexon.com/mabinogi/v1/${endpoint}?item_name=${encodeURIComponent(itemName)}`;
-  const options = {
-    "method": "get",
-    "headers": {
-      "accept": "application/json",
-      "x-nxopen-api-key": NEXON_API_KEY
-    },
-    "muteHttpExceptions": true
-  };
-
-  const response = UrlFetchApp.fetch(url, options);
-  if (response.getResponseCode() !== 200) return null;
-  
-  return JSON.parse(response.getContentText());
-}
